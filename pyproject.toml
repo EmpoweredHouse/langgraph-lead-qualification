@@ -17,7 +17,8 @@ dependencies = [
     "langchain-fireworks>=0.1.7",
     "python-dotenv>=1.0.1",
     "langsmith>=0.1.147",
-    "tavily-python>=0.5.0"
+    "tavily-python>=0.5.0",
+    "langchain-core (>=0.3.31,<0.4.0)"
 ]
 
 [tool.poetry.dependencies]
@@ -31,10 +32,12 @@ requires = ["setuptools>=73.0.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
-packages = ["langgraph.templates.agent", "agent"]
+packages = ["langgraph.templates.agent", "agent", "company_researcher_agent", "people_researcher_agent"]
 [tool.setuptools.package-dir]
 "langgraph.templates.agent" = "src/agent"
 "agent" = "src/agent"
+"company_researcher_agent" = "src/company_researcher_agent"
+"people_researcher_agent" = "src/people_researcher_agent"
 
 
 [tool.setuptools.package-data]
