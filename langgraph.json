@@ -1,7 +1,13 @@
 {
-  "dependencies": ["."],
+  "dockerfile_lines": [],
   "graphs": {
+    "company_researcher_agent": "./src/company_researcher_agent/graph.py:graph",
+    "people_researcher_agent": "./src/people_researcher_agent/graph.py:graph",
     "agent": "./src/agent/graph.py:graph"
   },
-  "env": ".env"
+  "env": ".env",
+  "python_version": "3.11",
+  "dependencies": [
+    "."
+  ]
 }
