@@ -35,13 +35,6 @@ class Configuration:
         },
     )
 
-    max_info_tool_calls: int = field(
-        default=3,
-        metadata={
-            "description": "The maximum number of times the Info tool can be called during a single interaction."
-        },
-    )
-
     max_loops: int = field(
         default=6,
         metadata={

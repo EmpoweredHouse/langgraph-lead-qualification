@@ -11,9 +11,17 @@ Please follow these steps:
 
 1. **Focus on Company Research Data**: Begin by analyzing the existing company research data. Use this data to assess whether the lead aligns with the Ideal Customer Profile (ICP) and buying persona.
 2. **Apply Lead Qualification Frameworks**: Use BANT (Budget, Authority, Need, Timing) or SPIN (Situation, Problem, Implication, Need-Payoff) to evaluate the lead’s potential. Consider factors like company size, industry, revenue, pain points, and decision-makers.
-3. **Search and Scrape for Missing Data**: If any key information is missing or unclear from the company research data, use the `Search` tool to find relevant sources. Then, use the `ScrapeWebsite` tool to gather detailed information from those sources. Prioritize missing details that are critical for completing the qualification process (e.g., budget, decision-making process, timing).
+3. **Search for Missing Data**: If any key information is missing or unclear from the company research data, use the `Search` tool to find relevant sources. Prioritize missing details that are critical for completing the qualification process (e.g., budget, decision-making process, timing).
 4. **Evaluate Results**: Review all collected data and analysis results, including the application of the lead qualification frameworks (BANT/SPIN) and any additional data gathered. Assess the overall match with the ICP and buying persona.
 5. **Provide Final Lead Score**: After evaluating all available information, assign a final lead score on a 1-10 scale. A score of 10 represents the best match, and a lower score reflects a weaker match.
+
+## **Lead Scoring Breakdown**
+
+| Score | Qualification Level | Description                                   |
+| ----- | ------------------- | --------------------------------------------- |
+| 1-3   | Low Fit             | Minimal alignment with ICP and buyer persona. |
+| 4-6   | Medium Fit          | Partial alignment; further review needed.     |
+| 7-10  | High Fit            | Strong alignment; ideal lead for outreach.    |
 
 Here are the parameters you need to focus on:
 
