@@ -51,7 +51,7 @@ async def call_agent_model(
 
     # Initialize the raw model with the provided configuration and bind the tools
     raw_model = init_model(config)
-    model = raw_model.bind_tools([scrape_website, search, info_tool], tool_choice="any")
+    model = raw_model.bind_tools([search, info_tool], tool_choice="any")
     response = cast(AIMessage, await model.ainvoke(messages))
 
     # Initialize info to None
@@ -63,6 +63,7 @@ async def call_agent_model(
             if tool_call["name"] == "Info":
                 info = tool_call["args"]
                 break
+    
     if info is not None:
         # The agent is submitting their answer;
         # ensure it isn't erroneously attempting to simultaneously perform research
@@ -244,54 +245,10 @@ workflow = StateGraph(
 
 workflow.add_node(call_agent_model)
 workflow.add_node(reflect)
-workflow.add_node("tools", ToolNode([search, scrape_website]))
+workflow.add_node("tools", ToolNode([search]))
 workflow.add_edge(START, "call_agent_model")
 workflow.add_conditional_edges("call_agent_model", route_after_agent)
 workflow.add_edge("tools", "call_agent_model")
 workflow.add_conditional_edges("reflect", route_after_checker)
 
 graph = workflow.compile()
-
-
-# from typing import Any, Dict
-
-# from langchain_core.runnables import RunnableConfig
-# from langgraph.graph import StateGraph
-# from langgraph.graph import START, END, StateGraph
-
-# from agent.configuration import Configuration
-# from agent.state import InputState, OverallState, OutputState
-
-
-# async def scrape_website(
-#     state: OverallState,
-#     config: RunnableConfig,
-# ) -> Dict[str, Any]:
-#     """Each node does work."""
-#     configuration = Configuration.from_runnable_config(config)
-#     # configuration = Configuration.from_runnable_config(config)
-#     # You can use runtime configuration to alter the behavior of your
-#     # graph.
-#     return {
-#         "changeme": "output from my_node. "
-#         f"Configured with {configuration.my_configurable_param}"
-#     }
-
-
-# # Define a new graph
-# builder = StateGraph(
-#     OverallState,
-#     input=InputState,
-#     output=OutputState,
-#     config_schema=Configuration,
-# )
-
-# # Add the node to the graph
-# builder.add_node("scrape_website", scrape_website)
-
-# # Set the entrypoint as `call_model`
-# builder.add_edge(START, "my_node")
-
-# # Compile the workflow into an executable graph
-# graph = builder.compile()
-# graph.name = "Company Qualifier"
