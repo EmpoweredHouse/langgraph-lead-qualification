@@ -10,7 +10,7 @@ from langgraph.prebuilt import InjectedState
 from typing_extensions import Annotated
 
 from agent.configuration import Configuration
-from agent.state import State
+from agent.state import OverallState
 from agent.utils import init_model
 
 
@@ -46,7 +46,7 @@ Based on the website content below, jot down some notes about the website.
 async def scrape_website(
     url: str,
     *,
-    state: Annotated[State, InjectedState],
+    state: Annotated[OverallState, InjectedState],
     config: Annotated[RunnableConfig, InjectedToolArg],
 ) -> str:
     """Scrape and summarize content from a given URL.

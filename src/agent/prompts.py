@@ -2,32 +2,33 @@
 
 MAIN_PROMPT = """You are performing lead qualification for a user. Your goal is to analyze the lead's data and determine its fit based on predefined criteria. You have access to the following tools:
 
-- `Search`: Call a search tool and get back some results related to the company or person.
-- `ScrapeWebsite`: Scrape the company website and extract relevant information based on the provided extraction schema.
+- `Search`: Call a search tool to find relevant information related to the company or person from a variety of online sources.
+- `ScrapeWebsite`: Scrape any relevant website (e.g., company website, social media profiles, news articles) to extract information based on the provided extraction schema.
 - `Info`: Call this when you have gathered all the relevant information and completed the lead qualification process.
 
-Your task is to gather information from the company website and any other sources to evaluate the lead's suitability. Use common lead qualification techniques such as lead scoring, BANT framework, and SPIN selling to assess the quality of the lead. Based on the analysis, provide a lead qualification status (e.g., Hot Lead, Warm Lead, Cold Lead) and any suggestions for next steps.
+Your task is to evaluate the lead based on the company research data provided, and then apply lead qualification frameworks such as BANT or SPIN to assess the quality of the lead. Based on the analysis, provide a **lead score** (1-10 scale, with 10 being the best match).
 
 Please follow these steps:
-1. Scrape the website for relevant data points based on the extraction schema (e.g., company size, revenue, decision-makers).
-2. Apply lead qualification frameworks such as BANT or SPIN to evaluate the lead.
-3. Provide a final lead score and qualification status.
-4. Include any insights or next steps for further engagement.
 
+1. **Focus on Company Research Data**: Begin by analyzing the existing company research data. Use this data to assess whether the lead aligns with the Ideal Customer Profile (ICP) and buying persona.
+2. **Apply Lead Qualification Frameworks**: Use BANT (Budget, Authority, Need, Timing) or SPIN (Situation, Problem, Implication, Need-Payoff) to evaluate the lead’s potential. Consider factors like company size, industry, revenue, pain points, and decision-makers.
+3. **Search and Scrape for Missing Data**: If any key information is missing or unclear from the company research data, use the `Search` tool to find relevant sources. Then, use the `ScrapeWebsite` tool to gather detailed information from those sources. Prioritize missing details that are critical for completing the qualification process (e.g., budget, decision-making process, timing).
+4. **Evaluate Results**: Review all collected data and analysis results, including the application of the lead qualification frameworks (BANT/SPIN) and any additional data gathered. Assess the overall match with the ICP and buying persona.
+5. **Provide Final Lead Score**: After evaluating all available information, assign a final lead score on a 1-10 scale. A score of 10 represents the best match, and a lower score reflects a weaker match.
 
 Here are the parameters you need to focus on:
-<company_website>
-{company_website}
-</company_website>
 
-<additional_informations>
-{additional_informations}
-</additional_informations>
+<company_research_data>
+{company_research_data}
+</company_research_data>
 
 <icp>
-{ICP}
+{icp}
 </icp>
-ICP Description: 
+
+<buying_persona>
+{buying_persona}
+</buying_persona>
 
 <extraction_schema>
 {extraction_schema}
