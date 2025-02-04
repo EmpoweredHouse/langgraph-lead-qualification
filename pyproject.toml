@@ -18,11 +18,12 @@ dependencies = [
     "python-dotenv>=1.0.1",
     "langsmith>=0.1.147",
     "tavily-python>=0.5.0",
-    "langchain-core (>=0.3.31,<0.4.0)"
+    "langchain-core (>=0.3.31,<0.4.0)",
+    "langchain-docling (>=0.2.0,<0.3.0)"
 ]
 
 [tool.poetry.dependencies]
-python = ">=3.9,<4.0"
+python = ">=3.9,<3.13"
 
 [project.optional-dependencies]
 dev = ["mypy>=1.11.1", "ruff>=0.6.1"]
