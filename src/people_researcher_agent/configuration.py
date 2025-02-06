@@ -9,9 +9,9 @@ from langchain_core.runnables import RunnableConfig
 class Configuration:
     """The configurable fields for the chatbot."""
 
-    max_search_queries: int = 3  # Max search queries per person
-    max_search_results: int = 3  # Max search results per query
-    max_reflection_steps: int = 0  # Max reflection steps
+    max_search_queries: int = 4  # Max search queries per person
+    max_search_results: int = 5  # Max search results per query
+    max_reflection_steps: int = 3  # Max reflection steps
 
     @classmethod
     def from_runnable_config(

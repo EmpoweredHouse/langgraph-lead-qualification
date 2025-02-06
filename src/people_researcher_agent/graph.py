@@ -86,7 +86,10 @@ def generate_queries(state: OverallState, config: RunnableConfig) -> dict[str, A
         Queries,
         structured_llm.invoke(
             [
-                {"role": "system", "content": query_instructions},
+                {
+                    "role": "system",
+                    "content": query_instructions
+                },
                 {
                     "role": "user",
                     "content": "Please generate a list of search queries related to the schema that you want to populate.",
@@ -207,10 +210,12 @@ def route_from_reflection(
 
     # If we have satisfactory results, end the process
     if state.is_satisfactory:
+        print("is_satisfactory")
         return END
 
     # If results aren't satisfactory but we haven't hit max steps, continue research
     if state.reflection_steps_taken <= configurable.max_reflection_steps:
+        print("max_reflection_steps")
         return "research_person"
 
     # If we've exceeded max steps, end even if not satisfactory
