@@ -54,7 +54,8 @@ class ReflectionOutput(BaseModel):
     reasoning: str = Field(description="Brief explanation of the assessment")
 
 
-def generate_queries(state: OverallState, config: RunnableConfig) -> dict[str, Any]:
+async def generate_queries(state: OverallState, config: RunnableConfig) -> dict[str, Any]:
+    # print("generate_queries")
     """Generate search queries based on the user input and extraction schema."""
     # Get configuration
     configurable = Configuration.from_runnable_config(config)
@@ -84,7 +85,7 @@ def generate_queries(state: OverallState, config: RunnableConfig) -> dict[str, A
     # Generate queries
     results = cast(
         Queries,
-        structured_llm.invoke(
+        await structured_llm.ainvoke(
             [
                 {
                     "role": "system",
@@ -95,7 +96,7 @@ def generate_queries(state: OverallState, config: RunnableConfig) -> dict[str, A
                     "content": "Please generate a list of search queries related to the schema that you want to populate.",
                 },
             ]
-        ),
+        )
     )
 
     # Queries
@@ -104,6 +105,7 @@ def generate_queries(state: OverallState, config: RunnableConfig) -> dict[str, A
 
 
 async def research_person(state: OverallState, config: RunnableConfig) -> dict[str, Any]:
+    # print("research_person")
     """Execute a multi-step web search and information extraction process.
 
     This function performs the following steps:
@@ -147,7 +149,8 @@ async def research_person(state: OverallState, config: RunnableConfig) -> dict[s
     return {"completed_notes": [str(result.content)]}
 
 
-def gather_notes_extract_schema(state: OverallState) -> dict[str, Any]:
+async def gather_notes_extract_schema(state: OverallState) -> dict[str, Any]:
+    # print("gather_notes_extract_schema")
     """Gather notes from the web search and extract the schema fields."""
 
     # Format all notes
@@ -158,7 +161,7 @@ def gather_notes_extract_schema(state: OverallState) -> dict[str, Any]:
         info=json.dumps(state.extraction_schema, indent=2), notes=notes
     )
     structured_llm = claude_3_5_sonnet.with_structured_output(state.extraction_schema)
-    result = structured_llm.invoke(
+    result = await structured_llm.ainvoke(
         [
             {"role": "system", "content": system_prompt},
             {
@@ -170,7 +173,8 @@ def gather_notes_extract_schema(state: OverallState) -> dict[str, Any]:
     return {"info": result}
 
 
-def reflection(state: OverallState) -> dict[str, Any]:
+async def reflection(state: OverallState) -> dict[str, Any]:
+    # print("reflection")
     """Reflect on the extracted information and generate search queries to find missing information."""
     structured_llm = claude_3_5_sonnet.with_structured_output(ReflectionOutput)
 
@@ -183,7 +187,7 @@ def reflection(state: OverallState) -> dict[str, Any]:
     # Invoke
     result = cast(
         ReflectionOutput,
-        structured_llm.invoke(
+        await structured_llm.ainvoke(
             [
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": "Produce a structured reflection output."},
@@ -201,9 +205,10 @@ def reflection(state: OverallState) -> dict[str, Any]:
         }
 
 
-def route_from_reflection(
+async def route_from_reflection(
     state: OverallState, config: RunnableConfig
 ) -> Literal[END, "research_person"]:  # type: ignore
+    # print("route_from_reflection")
     """Route the graph based on the reflection output."""
     # Get configuration
     configurable = Configuration.from_runnable_config(config)
