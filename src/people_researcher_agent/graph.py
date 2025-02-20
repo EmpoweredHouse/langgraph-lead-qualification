@@ -4,6 +4,7 @@ import json
 
 from tavily import AsyncTavilyClient
 from langchain_anthropic import ChatAnthropic
+from anthropic import RateLimitError
 from langchain_core.rate_limiters import InMemoryRateLimiter
 from langchain_core.runnables import RunnableConfig
 from langgraph.graph import START, END, StateGraph
@@ -22,7 +23,7 @@ from people_researcher_agent.prompts import (
 # LLMs
 
 rate_limiter = InMemoryRateLimiter(
-    requests_per_second=4,
+    requests_per_second=5,
     check_every_n_seconds=0.1,
     max_bucket_size=10,  # Controls the maximum burst size.
 )
@@ -54,7 +55,23 @@ class ReflectionOutput(BaseModel):
     reasoning: str = Field(description="Brief explanation of the assessment")
 
 
-def generate_queries(state: OverallState, config: RunnableConfig) -> dict[str, Any]:
+
+async def safe_llm_ainvoke(llm, *args, **kwargs):
+    """
+    Wraps an LLM's ainvoke call so that if a RateLimitError is raised,
+    it waits for 30 seconds and then retries.
+    """
+    while True:
+        try:
+            result = await llm.ainvoke(*args, **kwargs)
+            return result
+        except RateLimitError as e:
+            print(f"Rate limit error encountered: {e}. Sleeping for 60 seconds before retrying...")
+            await asyncio.sleep(30)
+
+
+async def generate_queries(state: OverallState, config: RunnableConfig) -> dict[str, Any]:
+    # print("generate_queries")
     """Generate search queries based on the user input and extraction schema."""
     # Get configuration
     configurable = Configuration.from_runnable_config(config)
@@ -84,7 +101,8 @@ def generate_queries(state: OverallState, config: RunnableConfig) -> dict[str, A
     # Generate queries
     results = cast(
         Queries,
-        structured_llm.invoke(
+        await safe_llm_ainvoke(
+            structured_llm,
             [
                 {
                     "role": "system",
@@ -95,7 +113,7 @@ def generate_queries(state: OverallState, config: RunnableConfig) -> dict[str, A
                     "content": "Please generate a list of search queries related to the schema that you want to populate.",
                 },
             ]
-        ),
+        )
     )
 
     # Queries
@@ -104,6 +122,7 @@ def generate_queries(state: OverallState, config: RunnableConfig) -> dict[str, A
 
 
 async def research_person(state: OverallState, config: RunnableConfig) -> dict[str, Any]:
+    # print("research_person")
     """Execute a multi-step web search and information extraction process.
 
     This function performs the following steps:
@@ -143,11 +162,12 @@ async def research_person(state: OverallState, config: RunnableConfig) -> dict[s
         people=state.person,
         user_notes=state.user_notes,
     )
-    result = await claude_3_5_sonnet.ainvoke(p)
+    result = await safe_llm_ainvoke(claude_3_5_sonnet, p)
     return {"completed_notes": [str(result.content)]}
 
 
-def gather_notes_extract_schema(state: OverallState) -> dict[str, Any]:
+async def gather_notes_extract_schema(state: OverallState) -> dict[str, Any]:
+    # print("gather_notes_extract_schema")
     """Gather notes from the web search and extract the schema fields."""
 
     # Format all notes
@@ -158,7 +178,8 @@ def gather_notes_extract_schema(state: OverallState) -> dict[str, Any]:
         info=json.dumps(state.extraction_schema, indent=2), notes=notes
     )
     structured_llm = claude_3_5_sonnet.with_structured_output(state.extraction_schema)
-    result = structured_llm.invoke(
+    result = await safe_llm_ainvoke(
+        structured_llm,
         [
             {"role": "system", "content": system_prompt},
             {
@@ -170,7 +191,8 @@ def gather_notes_extract_schema(state: OverallState) -> dict[str, Any]:
     return {"info": result}
 
 
-def reflection(state: OverallState) -> dict[str, Any]:
+async def reflection(state: OverallState) -> dict[str, Any]:
+    # print("reflection")
     """Reflect on the extracted information and generate search queries to find missing information."""
     structured_llm = claude_3_5_sonnet.with_structured_output(ReflectionOutput)
 
@@ -183,7 +205,8 @@ def reflection(state: OverallState) -> dict[str, Any]:
     # Invoke
     result = cast(
         ReflectionOutput,
-        structured_llm.invoke(
+        await safe_llm_ainvoke(
+            structured_llm,
             [
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": "Produce a structured reflection output."},
@@ -201,9 +224,10 @@ def reflection(state: OverallState) -> dict[str, Any]:
         }
 
 
-def route_from_reflection(
+async def route_from_reflection(
     state: OverallState, config: RunnableConfig
 ) -> Literal[END, "research_person"]:  # type: ignore
+    # print("route_from_reflection")
     """Route the graph based on the reflection output."""
     # Get configuration
     configurable = Configuration.from_runnable_config(config)
