@@ -10,7 +10,7 @@ from people_researcher_agent.state import InputState, DEFAULT_EXTRACTION_SCHEMA
 
 
 # Limit the number of concurrent tasks (e.g., max 10 at a time)
-semaphore = asyncio.Semaphore(5)
+semaphore = asyncio.Semaphore(10)
 
 
 async def process_person(row: dict) -> dict:
